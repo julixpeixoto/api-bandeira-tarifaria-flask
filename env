@@ -1,0 +1,7 @@
+URL_SOURCE=https://sic.cercos.com.br/sic/bandeiras_tarifarias/
+DB_HOST=
+DB_USER=
+DB_PASSWORD=
+DB_DATABASE=
+DB_PORT=
+DEBUG=False
