@@ -8,11 +8,11 @@ A aplicação realiza um webscraping dos dados, armazena na base de dados e exib
 
 - Python 3.8
 
-- MySQL 8.0
+- PostgreSQL
 
 ### Como rodar
 
-- Executar o script do arquivo script.sql no MySQL
+- Executar o script do arquivo script.sql no PostgreSQL
 
 - Rodar o comando:
 

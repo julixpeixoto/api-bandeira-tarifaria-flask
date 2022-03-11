@@ -1,7 +1,3 @@
 URL_SOURCE=https://sic.cercos.com.br/sic/bandeiras_tarifarias/
-DB_HOST=
-DB_USER=
-DB_PASSWORD=
-DB_DATABASE=
-DB_PORT=
 DEBUG=False
+DATABASE_URL="postgresql+psycopg2://postgres:123456@localhost:15432/dados"

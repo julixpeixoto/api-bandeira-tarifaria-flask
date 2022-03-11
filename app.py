@@ -1,4 +1,3 @@
-import json
 import requests
 from bs4 import BeautifulSoup
 from flask import Flask, jsonify
@@ -7,14 +6,18 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 import config
-import mysql.connector
 import uuid
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from data_model import DataModel
+import datetime
 
 def get_connection():
-    cnct = mysql.connector.connect(host=config.db_host, user=config.db_user, port=int(config.db_port), password=config.db_password, database=config.db_database)
-    cursor = cnct.cursor()
+    engine = create_engine(config.db_url)
+    Session = sessionmaker(bind = engine)
+    session = Session()
 
-    return cnct, cursor
+    return session
 
 
 def get_number_month(month):
@@ -59,33 +62,35 @@ def get_data():
     return data
 
 
-def save_data_db(data, cnct, cursor):
-    for d in data:        
-        sql_query = """SELECT 1 FROM dados_bandeira WHERE ano=%(ano)s AND mes=%(mes)s"""
-        cursor.execute(sql_query, d)
-        response = cursor.fetchall()
+def save_data_db(data, session):
+    for d in data:
+        result = session.query(DataModel).filter_by(mes=d['mes'], ano = d['ano']).first()       
 
-        if(response == []):
-            sql_query = """INSERT INTO dados_bandeira (id, ano, bandeira, mes, numero_mes, valor) VALUES (%(id)s, %(ano)s, %(bandeira)s, %(mes)s, %(numero_mes)s, %(valor)s)"""
-            cursor.execute(sql_query, d)
-            cnct.commit()
+        if(result == None):
+            event = DataModel(id = str(uuid.uuid4()), 
+                ano = d['ano'], 
+                bandeira = d['bandeira'], 
+                mes = d['mes'], 
+                numero_mes = d['numero_mes'], 
+                valor = d['valor'], 
+                created_at = datetime.datetime.now())
+
+            session.add(event)
+            session.commit()
 
 
-def get_data_db(cnct, cursor):
+def get_data_db(session):
+    result = session.query(DataModel).all()
     data = []
 
-    sql_query = """SELECT ano, bandeira, mes, valor FROM dados_bandeira ORDER BY ano desc, numero_mes desc"""
-    cursor.execute(sql_query)
-    response = cursor.fetchall()
-
-    for d in response:
+    for r in result:
         data.append({
-            "ano" : d[0],
-            "bandeira" : d[1],
-            "mes" : d[2],
-            "valor":  d[3]           
+            "ano" : r.ano,
+            "bandeira" : r.bandeira,
+            "mes" : r.mes,
+            "valor" : r.valor           
         })
-
+         
     return data
 
 
@@ -98,10 +103,10 @@ app.debug = config.debug_mode
 @app.route('/')
 @cross_origin()
 def index():
-    cnct, cursor = get_connection()
+    session = get_connection()
     data = get_data()
-    save_data_db(data, cnct, cursor)
-    data_db = get_data_db(cnct, cursor)
+    save_data_db(data, session)
+    data_db = get_data_db(session)
     return jsonify(data_db)
 
 if __name__ == "__main__":    

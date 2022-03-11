@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: "123456"
+    ports:
+      - "15432:5432"
+    volumes:
+      - my-datavolume:/var/lib/postgres 
+    networks:
+      - postgres-network
+      
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@localhost.com"
+      PGADMIN_DEFAULT_PASSWORD: "123456"
+    ports:
+      - "16543:80"
+    depends_on:
+      - postgres
+    networks:
+      - postgres-network
+
+networks: 
+  postgres-network:
+    driver: bridge
+
+volumes:
+  my-datavolume:
