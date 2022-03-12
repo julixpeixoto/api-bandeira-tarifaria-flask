@@ -19,3 +19,7 @@ A aplicação realiza um webscraping dos dados, armazena na base de dados e exib
    ```pip install -r requirements.txt```
 
 - Renomear o arquivo env para .env e preencher os dados
+
+### Demonstração
+
+https://api-bandeira-tarifaria-flask.herokuapp.com/
