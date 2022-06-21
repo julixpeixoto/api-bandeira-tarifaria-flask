@@ -41,6 +41,9 @@ def get_number_month(month):
 
 def get_data():
     response = requests.get(config.url_source, verify=False)
+
+    if(response.status_code != 200): return False
+
     content = BeautifulSoup(response.text, 'html.parser')
     data = []
 
@@ -80,7 +83,8 @@ def save_data_db(data, session):
 
 
 def get_data_db(session):
-    result = session.query(DataModel).all()
+    result = session.query(DataModel).order_by(DataModel.ano.desc()).order_by(DataModel.numero_mes.desc())
+
     data = []
 
     for r in result:
